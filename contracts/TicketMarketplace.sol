@@ -74,14 +74,15 @@ contract TicketMarketplace is ITicketMarketplace {
     function buyTickets(uint128 eventId, uint128 ticketCount) payable external {
         Event storage eventInfo = events[eventId];
         
-        // Check if enough tickets available
-        require(eventInfo.nextTicketToSell + ticketCount <= eventInfo.maxTickets,
-            "We don't have that many tickets left to sell!");
-        
-        // Calculate total price with overflow check
+
+        // Calculate total price with overflow check FIRST
         (bool success, uint256 totalPrice) = Math.tryMul(eventInfo.pricePerTicket, ticketCount);
         require(success, 
             "Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
+        
+        // Check if enough tickets available
+        require(eventInfo.nextTicketToSell + ticketCount <= eventInfo.maxTickets,
+            "We don't have that many tickets left to sell!");
         
         // Check if enough ETH sent
         require(msg.value >= totalPrice,
@@ -100,14 +101,14 @@ contract TicketMarketplace is ITicketMarketplace {
     function buyTicketsERC20(uint128 eventId, uint128 ticketCount) external {
         Event storage eventInfo = events[eventId];
         
-        // Check if enough tickets available
-        require(eventInfo.nextTicketToSell + ticketCount <= eventInfo.maxTickets,
-            "We don't have that many tickets left to sell!");
-        
-        // Calculate total price with overflow check
+        // Calculate total price with overflow check FIRST
         (bool success, uint256 totalPrice) = Math.tryMul(eventInfo.pricePerTicketERC20, ticketCount);
         require(success, 
             "Overflow happened while calculating the total price of tickets. Try buying smaller number of tickets.");
+        
+        // Check if enough tickets available
+        require(eventInfo.nextTicketToSell + ticketCount <= eventInfo.maxTickets,
+            "We don't have that many tickets left to sell!");
         
         // Transfer ERC20 tokens
         IERC20 token = IERC20(ERC20Address);
